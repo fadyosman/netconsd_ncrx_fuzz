@@ -1,7 +1,12 @@
 #include "ncrx.h"
 #include <time.h>
 
+__AFL_FUZZ_INIT();
+
 int main(int argc, char **argv) {
+	#ifdef __AFL_HAVE_MANUAL_CONTROL
+	__AFL_INIT();
+	#endif
 	struct ncrx *ncrx = ncrx_create(NULL);
 	unsigned char *buf = __AFL_FUZZ_TESTCASE_BUF;
 	while (__AFL_LOOP(10000)) {
