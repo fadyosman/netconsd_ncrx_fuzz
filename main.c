@@ -34,23 +34,14 @@ int main(int argc, char **argv) {
 int myProcess(const char *payload, uint64_t now_mono, uint64_t now_real,
 		struct ncrx *ncrx, unsigned int length) {
   	//In afl, you will need to NULL terminate the string since AFL would print anything.
-	char *printMe = payload;
-	printMe[length-1] = '\0';
-	char *firstN = strchr(printMe, '\n');
-	while(firstN != NULL) {
-	//if \n is at the end, that's fine the pointer will point to \0.
-		firstN = firstN + 1;
-		unsigned int len = (firstN - printMe);
-		if(len > 0) {
-		  char *buf = malloc(len);
-		  buf[len-1] = '\0';
-		  strncpy(buf, printMe, len);
-		  ncrx_process(buf, now_mono, now_real,ncrx);
-		  printMe = firstN;
-		  firstN = strchr(printMe, '\n');
-		}
-	}
-	if(strlen(printMe) != 0) {
-	  ncrx_process(printMe, now_mono, now_real,ncrx);
-	}
+	char *string = payload;
+	string[length-1] = '\0';
+	// Extract the first token
+	char *token = strtok(string, "\n");
+        // loop through the string to extract all other tokens
+        while( token != NULL ) {
+          printf("Processing: %s\n", token);
+          ncrx_process(token, now_mono, now_real,ncrx);
+          token = strtok(NULL, " ");
+        }
 }
