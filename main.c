@@ -35,7 +35,7 @@ int myProcess(const char *payload, uint64_t now_mono, uint64_t now_real,
 		struct ncrx *ncrx, unsigned int length) {
   	//In afl, you will need to NULL terminate the string since AFL would print anything.
 	char *printMe = payload;
-	printMe[length] = '\0';
+	printMe[length-1] = '\0';
 	char *firstN = strchr(printMe, '\n');
 	while(firstN != NULL) {
 	//if \n is at the end, that's fine the pointer will point to \0.
