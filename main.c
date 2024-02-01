@@ -1,17 +1,12 @@
 #include "ncrx.h"
 #include "string.h"
 #include <time.h>
-
-__AFL_FUZZ_INIT();
+#include <klee/klee.h>
 
 int main(int argc, char **argv) {
-	#ifdef __AFL_HAVE_MANUAL_CONTROL
-	__AFL_INIT();
-	#endif
-	
-	unsigned char *buf = __AFL_FUZZ_TESTCASE_BUF;
-	while (__AFL_LOOP(10000)) {
-	        int len = __AFL_FUZZ_TESTCASE_LEN;
+		unsigned char buf[4096];
+	        int len = 4096;
+		klee_make_symbolic(&buf, sizeof(buf), "buf");
 		struct timespec ts;
 		if (clock_gettime(CLOCK_MONOTONIC, &ts)) {
 			perror("clock_gettime");
@@ -20,15 +15,8 @@ int main(int argc, char **argv) {
 		uint64_t now = ts.tv_sec * 1000 + ts.tv_nsec / 1000000;
 		//ncrx fuzzing :D
 		struct ncrx *ncrx = ncrx_create(NULL);
-		if(argc == 2) {
-		  printf("myprocess\n");
-		  myProcess(buf, now, 0,ncrx,len);
-		} else {
-		  printf("no myprocess\n");
-		  ncrx_process(buf, now, 0,ncrx);
-		}
+		myProcess(buf, now, 0,ncrx,len);
 		ncrx_destroy(ncrx);
-	}
 }
 
 int myProcess(const char *payload, uint64_t now_mono, uint64_t now_real,
